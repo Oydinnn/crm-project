@@ -1,0 +1,165 @@
+import { Global, Module } from "@nestjs/common";
+import { PrismaService } from "./prisma.service";
+@Global()
+@Module({
+  providers: [PrismaService],
+  exports: [PrismaService]
+})
+export class PrismaModule{}
+
+/*
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum CourseLevel {
+  beginner
+  intermediate
+  advanced
+}
+
+enum Role {
+  SUPERADMIN
+  ADMIN
+  TEACHER
+}
+
+enum Status {
+  inactive
+  active
+}
+
+enum StudentStatus {
+  inactive
+  active
+  freeze
+  graduated
+}
+
+enum Week_day {
+  monday
+  tuesday
+  wednesday
+  thursday
+  friday
+  saturday
+  sunday
+}
+
+enum GroupStatus {
+  planned
+  active
+  completed
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  first_name String
+  last_name  String
+  password   String
+  role       Role
+  phone      String   @unique
+  email      String   @unique
+  address    String
+  photo      String?
+  status     Status   @default(active)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Student {
+  id         Int      @id @default(autoincrement())
+  first_name String
+  last_name  String
+  password   String
+  phone      String   @unique
+  email      String   @unique
+  birth_date DateTime
+  address    String
+  photo      String?
+  status        StudentStatus  @default(active)
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+  studentGroups StudentGroup[]
+}
+
+model Teacher {
+  id         Int      @id @default(autoincrement())
+  first_name String
+  last_name  String
+  password   String
+  phone      String   @unique
+  email      String   @unique
+  birth_date DateTime
+  address    String
+  photo      String?
+  status     Status   @default(active)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  groups Group[]
+}
+
+model Course {
+  id             Int         @id @default(autoincrement())
+  name           String      @unique
+  desc           String?
+  price          Decimal
+  duration_month Int
+  duration_hours Int
+  level          CourseLevel
+  status         Status      @default(active)
+  created_at     DateTime    @default(now())
+  updated_at     DateTime    @updatedAt
+
+  groups Group[]
+}
+
+model Room {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  groups Group[]
+}
+
+model Group {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique
+  desc        String?
+  course_id   Int
+  teacher_id  Int
+  room_id     Int
+  start_date  DateTime
+  week_day    Week_day[]
+  start_time  String
+  max_student Int
+  status      GroupStatus @default(active)
+  created_at  DateTime    @default(now())
+  updated_at  DateTime    @updatedAt
+
+  course       Course         @relation(fields: [course_id], references: [id])
+  teacher      Teacher        @relation(fields: [teacher_id], references: [id])
+  room         Room           @relation(fields: [room_id], references: [id])
+  studentGroup StudentGroup[]
+}
+
+model StudentGroup {
+  id         Int      @id @default(autoincrement())
+  student_id Int
+  group_id   Int
+  status     Status   @default(active)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  student Student @relation(fields: [student_id], references: [id])
+  group   Group   @relation(fields: [group_id], references: [id])
+}
+
+*/
