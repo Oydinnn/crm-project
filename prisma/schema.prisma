@@ -24,6 +24,7 @@ enum Role {
   SUPERADMIN
   ADMIN
   TEACHER
+  STUDENT
 }
 
 enum Status {
