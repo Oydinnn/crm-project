@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UnsupportedMediaTypeException, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UnsupportedMediaTypeException, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { StudentsService } from './students.service';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
@@ -8,6 +8,7 @@ import { Roles } from 'src/common/decorators/role';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { CreateStudentDto } from './dto/create.student.dto';
+import { UpdateStudentDto } from './dto/update.student.dto';
 
 @ApiBearerAuth()
 @Controller('students')
@@ -75,4 +76,33 @@ export class StudentsController {
   ){
     return this.studentService.createStudent(payload, file.filename)
   }
+
+
+
+  // UPDATE STUDENT
+    @ApiOperation({
+      summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`
+    })
+    @UseGuards(Authguard, RoleGuard)
+    @Roles(Role.SUPERADMIN, Role.ADMIN)
+    @Patch('student/:id')
+    updateTeacher(
+      @Param('id', ParseIntPipe) id: number,
+      @Body() payload: UpdateStudentDto,
+    ) {
+      return this.studentService.updateStudent(id, payload);
+    }
+    
+    // DELETE STUDENT
+    @ApiOperation({
+      summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`
+    })
+    @UseGuards(Authguard, RoleGuard)
+    @Roles(Role.SUPERADMIN, Role.ADMIN)
+    @Delete('student/:id')
+    deleteStudent(
+      @Param('id', ParseIntPipe) id: number,
+    ) {
+      return this.studentService.deleteStudent(id);
+    }
 }

@@ -15,4 +15,9 @@ export class AuthController {
   teacherLogin(@Body() payload : LoginDto){
     return this.authService.teacherLogin(payload)
   }
+  
+  @Post("student/login")
+  studentLogin(@Body() payload : LoginDto){
+    return this.authService.studentLogin(payload)
+  }
 }

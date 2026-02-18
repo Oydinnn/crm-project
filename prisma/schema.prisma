@@ -55,6 +55,11 @@ enum GroupStatus {
   completed
 }
 
+enum RoomStatus {
+  active
+  inactive
+}
+
 model User {
   id         Int      @id @default(autoincrement())
   first_name String
@@ -121,6 +126,7 @@ model Course {
 model Room {
   id         Int      @id @default(autoincrement())
   name       String   @unique
+  status     RoomStatus  @default(active)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -158,4 +164,6 @@ model StudentGroup {
 
   student Student @relation(fields: [student_id], references: [id])
   group   Group   @relation(fields: [group_id], references: [id])
+
+  @@unique([student_id, group_id])
 }

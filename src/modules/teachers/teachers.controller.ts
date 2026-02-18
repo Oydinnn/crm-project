@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { TeachersService } from './teachers.service';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
@@ -8,6 +8,7 @@ import { Roles } from 'src/common/decorators/role';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { CreateTeacherDto } from './dto/create.teacher.dto';
+import { UpdateTeacherDto } from './dto/update.teacher.dto';
 
 @ApiBearerAuth()
 @Controller('teachers')
@@ -70,4 +71,32 @@ export class TeachersController {
     ){
       return this.teacherService.createTeacher(payload, file.filename)
     }
+
+  
+  // UPDATE TEACHER
+  @ApiOperation({
+    summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`
+  })
+  @UseGuards(Authguard, RoleGuard)
+  @Roles(Role.SUPERADMIN, Role.ADMIN)
+  @Patch('teacher/:id')
+  updateTeacher(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() payload: UpdateTeacherDto,
+  ) {
+    return this.teacherService.updateTeacher(id, payload);
+  }
+  
+  // DELETE TEACHER 
+  @ApiOperation({
+    summary: `${Role.SUPERADMIN}`
+  })
+  @UseGuards(Authguard, RoleGuard)
+  @Roles(Role.SUPERADMIN)
+  @Delete('teacher/:id')
+  deleteTeacher(
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.teacherService.deleteTeacher(id);
+  }
 }

@@ -59,4 +59,28 @@ export class AuthService{
       accessToken: this.jwtService.sign({id: existUser.id, email: existUser.email, role: Role.TEACHER})
     }
   }
+
+
+  async studentLogin(payload: LoginDto){
+    const existUser = await this.prisma.student.findUnique({
+      where:{
+        phone: payload.phone
+      }
+    })
+
+    if(!existUser){
+      throw new UnauthorizedException("Invalid phone or password")
+    }
+
+    const isMatch = await bcrypt.compare(payload.password, existUser.password)
+    if(!isMatch){
+      throw new UnauthorizedException("Invalid phone or password")
+    }
+
+    return{
+      success: true,
+      message: "You're logged",
+      accessToken: this.jwtService.sign({id: existUser.id, email: existUser.email, role: Role.STUDENT})
+    }
+  }
 }

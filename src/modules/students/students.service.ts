@@ -1,12 +1,18 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/core/database/prisma.service';
 import { CreateStudentDto } from './dto/create.student.dto';
 import * as bcrypt from 'bcrypt'
 import { Status } from '@prisma/client';
+import { EmailService } from 'src/common/email/email.service';
+import { UpdateStudentDto } from './dto/update.student.dto';
 
 @Injectable()
 export class StudentsService {
-  constructor(private prisma: PrismaService){}
+  constructor(
+    private prisma: PrismaService,
+    private emailService : EmailService
+  
+  ){}
 
     async getAllStudents(){
       const students = await this.prisma.student.findMany({
@@ -57,9 +63,58 @@ export class StudentsService {
         }
       })
 
+      await this.emailService.sendEmail(payload.email, payload.phone, payload.password)
+
       return{
         success: true, 
         message: "Student created"
+      }
+    }
+
+
+   async updateStudent(id: number, payload: UpdateStudentDto) {
+      const student = await this.prisma.student.findUnique({
+        where: { id },
+      });
+    
+      if (!student) {
+        throw new NotFoundException('Student topilmadi');
+      }
+    
+      return this.prisma.student.update({
+        where: { id },
+        data: {
+          first_name: payload.first_name,
+          last_name: payload.last_name,
+          email: payload.email,
+          phone: payload.phone,
+          address: payload.address,
+          birth_date: payload.birth_date 
+          ? new Date(payload.birth_date + 'T00:00:00.000Z') 
+          : undefined,
+        },
+      });
+      }
+    
+    
+    
+      async deleteStudent(id: number) {
+    
+      const student = await this.prisma.student.findUnique({
+        where: { id },
+      });
+    
+      if (!student) {
+        throw new NotFoundException('student topilmadi');
+      }
+      
+      await this.prisma.student.delete({
+        where: { id },
+      });
+    
+      return {
+        success: true,
+        message: 'student deleted'
       }
     }
 

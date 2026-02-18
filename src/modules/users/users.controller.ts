@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { CreateAdminDto } from "./dto/create.admin.dto";
 import { RoleGuard } from "src/common/guards/role.guard";
@@ -6,12 +6,16 @@ import { Roles } from "src/common/decorators/role";
 import { Role } from "@prisma/client";
 import { ApiBearerAuth, ApiOperation } from "@nestjs/swagger";
 import { Authguard } from "src/common/guards/jwt-auth.guard";
+import { UpdateAdminDto } from "./dto/update.admin.dto";
 
 @ApiBearerAuth()
 @Controller('users')
 export class UserController{
   constructor(private readonly userService: UsersService){}
 
+
+
+// GET ALL ADMINS
   @ApiOperation({
     summary:`${Role.SUPERADMIN}`
   })
@@ -22,6 +26,23 @@ export class UserController{
     return this.userService.getAllAdmins()
   }
 
+
+
+
+  // GET ALL USERS
+
+  @ApiOperation({
+    summary:`${Role.SUPERADMIN}`
+  })
+  @UseGuards(Authguard,RoleGuard)
+  @Roles(Role.SUPERADMIN)
+  @Get("users/all")
+  getAllUsers(){
+    return this.userService.getAllUsers()
+  }
+
+
+// POST ADMIN
    @ApiOperation({
     summary:`${Role.SUPERADMIN}, ${Role.ADMIN}`
   })
@@ -31,4 +52,34 @@ export class UserController{
   createAdmin(@Body() payload: CreateAdminDto){
     return this.userService.createAdmin(payload)
   }
+
+
+
+// UPDATE ADMIN
+@ApiOperation({
+  summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`
+})
+@UseGuards(Authguard, RoleGuard)
+@Roles(Role.SUPERADMIN, Role.ADMIN)
+@Patch('admin/:id')
+updateAdmin(
+  @Param('id', ParseIntPipe) id: number,
+  @Body() payload: UpdateAdminDto,
+) {
+  return this.userService.updateAdmin(id, payload);
+}
+
+// DELETE ADMIN 
+@ApiOperation({
+  summary: `${Role.SUPERADMIN}`
+})
+@UseGuards(Authguard, RoleGuard)
+@Roles(Role.SUPERADMIN)
+@Delete('admin/:id')
+deleteAdmin(
+  @Param('id', ParseIntPipe) id: number,
+) {
+  return this.userService.deleteAdmin(id);
+}
+ 
 }

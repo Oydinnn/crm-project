@@ -1,8 +1,9 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/core/database/prisma.service';
 import * as bcrypt from 'bcrypt'
 import { Status } from '@prisma/client';
 import { CreateTeacherDto } from './dto/create.teacher.dto';
+import { UpdateTeacherDto } from './dto/update.teacher.dto';
 
 @Injectable()
 export class TeachersService {
@@ -62,5 +63,50 @@ export class TeachersService {
         message: "Teacher created"
       }
     }
+
+
+   async updateTeacher(id: number, payload: UpdateTeacherDto) {
+    const teacher = await this.prisma.teacher.findUnique({
+      where: { id },
+    });
+  
+    if (!teacher) {
+      throw new NotFoundException('Teacher topilmadi');
+    }
+  
+    return this.prisma.teacher.update({
+      where: { id },
+      data: {
+        first_name: payload.first_name,
+        last_name: payload.last_name,
+        email: payload.email,
+        phone: payload.phone,
+        address: payload.address,
+        birth_date: payload.birth_date
+      },
+    });
+    }
+  
+  
+  
+    async deleteTeacher(id: number) {
+  
+    const teacher = await this.prisma.teacher.findUnique({
+      where: { id },
+    });
+  
+    if (!teacher) {
+      throw new NotFoundException('teacher topilmadi');
+    }
+    
+    await this.prisma.teacher.delete({
+      where: { id },
+    });
+  
+    return {
+      success: true,
+      message: 'teacher deleted'
+    }
+  }
 
   }
