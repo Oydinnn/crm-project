@@ -31,6 +31,154 @@ export class TeachersService {
       }
     }
 
+    async getOneTeacher(id: number){
+    const teacher = await this.prisma.teacher.findUnique({
+
+    where: { id },
+    select: {
+      id: true,
+      first_name: true,
+      last_name: true,
+      email: true,
+      phone: true,
+      address: true,
+      birth_date: true,
+      photo: true,
+      status: true,
+    },
+  });
+  console.log(teacher);
+  
+
+  if (!teacher) {
+    throw new NotFoundException('Teacher not founded with this id');
+  }
+
+  return {
+    success: true,
+    data: teacher,
+  };
+    }
+
+    async getTeacherWithGroups(teacherId: number) {
+      // console.log(teacherId);
+      
+    const teacher = await this.prisma.teacher.findUnique({
+    where: { id: teacherId },
+    select: {
+      id: true,
+      first_name: true,
+      last_name: true,
+      email: true,
+      phone: true,
+      address: true,
+      birth_date: true,
+      photo: true,
+      status: true,
+    },
+  });
+
+  if (!teacher) {
+    throw new NotFoundException('teacher topilmadi');
+  }
+
+  const groups = await this.prisma.group.findMany({
+    where: { teacher_id: teacherId },
+    select: {
+      id: true,
+      name: true,
+      course: { select: { name: true } },
+      room: { select: { name: true } },
+      start_date: true,
+      start_time: true,
+      week_day: true,
+      max_student: true,
+      status: true,
+    },
+  });
+
+  return {
+    success: true,
+    data: {
+      teacher,
+      groups,
+    },
+  };
+}
+
+
+    async getMyGroups(teacherId: number) {
+      // console.log(teacherId);
+      
+    const teacher = await this.prisma.teacher.findUnique({
+    where: { id: teacherId },
+  });
+
+  if (!teacher) {
+    throw new NotFoundException('teacher topilmadi');
+  }
+
+  const groups = await this.prisma.group.findMany({
+    where: { teacher_id: teacherId },
+    select: {
+      id: true,
+      name: true,
+      course: { select: { name: true } },
+      room: { select: { name: true } },
+      start_date: true,
+      start_time: true,
+      week_day: true,
+      max_student: true,
+      status: true,
+    },
+  });
+
+  return {
+    success: true,
+    data: {
+      groups,
+    },
+  };
+}
+
+
+
+   async getSingleGroup(groupId: number, teacherIdFromToken: number) {
+      
+    const teacher = await this.prisma.teacher.findUnique({
+    where: { id: teacherIdFromToken },
+  });
+
+  if (!teacher) {
+    throw new NotFoundException('teacher topilmadi');
+  }
+
+  const group = await this.prisma.group.findFirst({
+    where: { 
+      teacher_id: teacherIdFromToken ,
+      id: groupId
+    },
+    select: {
+      id: true,
+      name: true,
+      course: { select: { name: true } },
+      room: { select: { name: true } },
+      start_date: true,
+      start_time: true,
+      week_day: true,
+      max_student: true,
+      status: true,
+    },
+  });
+
+  return {
+    success: true,
+    data: {
+      group,
+    },
+  };
+}
+
     async createTeacher(payload: CreateTeacherDto, filename?: string) {
       const existTeacher = await this.prisma.teacher.findFirst({
         where:{

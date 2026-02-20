@@ -45,12 +45,12 @@ export class AuthService{
     })
 
     if(!existUser){
-      throw new UnauthorizedException("Invalid phone or password")
+      throw new UnauthorizedException("Invalid phone")
     }
 
     const isMatch = await bcrypt.compare(payload.password, existUser.password)
     if(!isMatch){
-      throw new UnauthorizedException("Invalid phone or password")
+      throw new UnauthorizedException("Invalid password")
     }
 
     return{

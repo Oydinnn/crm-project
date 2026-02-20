@@ -7,8 +7,7 @@ import { PrismaService } from 'src/core/database/prisma.service';
 import { CreateGroupDto } from './dto/create.group.dto';
 import { UpdateGroupDto } from './dto/update.group.dto';
 import { Status } from '@prisma/client';
-import { first } from 'rxjs';
-import { start } from 'repl';
+import { FilterDto} from './dto/search.group.dto';
 
 @Injectable()
 export class GroupsService {
@@ -51,9 +50,23 @@ export class GroupsService {
     };
   }
 
-  async getAllGroups() {
+  async getAllGroups(search:FilterDto) {
+    const {groupName, max_student} = search
+
+    let searchWhere = {
+      status: Status.active
+    }
+
+    if(groupName){
+      searchWhere["name"] = groupName
+    }
+
+    if(max_student){
+      searchWhere["max_student"] = +max_student
+    }
+    
     const groups = await this.prisma.group.findMany({
-      where: { status: 'active' },
+      where:searchWhere,
       select: {
         id: true,
         name: true,

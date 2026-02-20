@@ -7,6 +7,8 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
+  Search,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
@@ -17,6 +19,7 @@ import { RoleGuard } from 'src/common/guards/role.guard';
 import { Roles } from 'src/common/decorators/role';
 import { CreateGroupDto } from './dto/create.group.dto';
 import { UpdateGroupDto } from './dto/update.group.dto';
+import { FilterDto } from './dto/search.group.dto';
 
 @ApiBearerAuth()
 @Controller('groups')
@@ -33,15 +36,21 @@ export class GroupsController {
     return this.groupService.getGroupOne(groupId);
   }
 
+
+
   @ApiOperation({
     summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`,
   })
   @UseGuards(Authguard, RoleGuard)
   @Roles(Role.SUPERADMIN, Role.ADMIN)
-  @Get()
-  getAllGroups() {
-    return this.groupService.getAllGroups();
+  @Get("all")
+  getAllGroups(
+    @Query() search : FilterDto
+  ) {    
+    return this.groupService.getAllGroups(search);
   }
+
+
 
   @ApiOperation({
     summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`,
@@ -53,6 +62,8 @@ export class GroupsController {
     return this.groupService.createGroup(payload);
   }
 
+
+  
   // UPDATE
   @ApiOperation({
     summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`,

@@ -15,6 +15,19 @@ import { UpdateStudentDto } from './dto/update.student.dto';
 export class StudentsController {
   constructor(private readonly studentService: StudentsService){}
 
+  //GET ONE STUDENTS
+
+  @ApiOperation({
+    summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`,
+  })
+  @UseGuards(Authguard, RoleGuard)
+  @Roles(Role.SUPERADMIN, Role.ADMIN)
+  @Get('one/:id')
+  getStudentOne(@Param('id', ParseIntPipe) id: number) {
+    return this.studentService.getStudentOne(+id);
+  }
+
+
   //GET ALL STUDENTS
 
   @ApiOperation({

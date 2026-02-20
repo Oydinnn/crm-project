@@ -8,7 +8,7 @@ export class RoleGuard implements CanActivate{
   canActivate(context: ExecutionContext): boolean{
     const roles = this.reflector.get("roles", context.getHandler())
     const req = context.switchToHttp().getRequest()
-    console.log(req['user']);
+    // console.log(req['user']);
     
     if(!roles.includes(req['user'].role)) throw new ForbiddenException()
     return true

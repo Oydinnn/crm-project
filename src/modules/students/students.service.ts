@@ -14,6 +14,34 @@ export class StudentsService {
   
   ){}
 
+    async getStudentOne(id: number) {
+    const student = await this.prisma.student.findUnique({
+
+    where: { id },
+    select: {
+      id: true,
+      first_name: true,
+      last_name: true,
+      email: true,
+      phone: true,
+      address: true,
+      birth_date: true,
+      photo: true,
+      status: true,
+    },
+  });
+
+  if (!student) {
+    throw new NotFoundException('Talaba topilmadi');
+  }
+
+  return {
+    success: true,
+    data: student,
+  };
+}
+    
+
     async getAllStudents(){
       const students = await this.prisma.student.findMany({
         where: {
