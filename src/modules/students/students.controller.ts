@@ -42,8 +42,7 @@ export class StudentsController {
 
 
   // POST STUDENTS
-
-  @ApiOperation({
+@ApiOperation({
     summary: `${Role.SUPERADMIN},${Role.ADMIN}`,
     description: "Bu endpointga admin va superadmin huquqi bor"
   })
@@ -63,6 +62,7 @@ export class StudentsController {
         address: {type: 'string'},
         birth_date: {type: 'string', format: 'date', example: '2000-01-01'},
       }
+  
     }
   })
   @UseInterceptors(FileInterceptor("photo", {

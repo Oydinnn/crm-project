@@ -100,50 +100,50 @@ export class StudentsService {
     }
 
 
-   async updateStudent(id: number, payload: UpdateStudentDto) {
-      const student = await this.prisma.student.findUnique({
-        where: { id },
-      });
-    
-      if (!student) {
-        throw new NotFoundException('Student topilmadi');
-      }
-    
-      return this.prisma.student.update({
-        where: { id },
-        data: {
-          first_name: payload.first_name,
-          last_name: payload.last_name,
-          email: payload.email,
-          phone: payload.phone,
-          address: payload.address,
-          birth_date: payload.birth_date 
-          ? new Date(payload.birth_date + 'T00:00:00.000Z') 
-          : undefined,
-        },
-      });
-      }
-    
-    
-    
-      async deleteStudent(id: number) {
-    
-      const student = await this.prisma.student.findUnique({
-        where: { id },
-      });
-    
-      if (!student) {
-        throw new NotFoundException('student topilmadi');
-      }
+    async updateStudent(id: number, payload: UpdateStudentDto) {
+        const student = await this.prisma.student.findUnique({
+          where: { id },
+        });
       
-      await this.prisma.student.delete({
-        where: { id },
-      });
+        if (!student) {
+          throw new NotFoundException('Student topilmadi');
+        }
+      
+        return this.prisma.student.update({
+          where: { id },
+          data: {
+            first_name: payload.first_name,
+            last_name: payload.last_name,
+            email: payload.email,
+            phone: payload.phone,
+            address: payload.address,
+            birth_date: payload.birth_date 
+            ? new Date(payload.birth_date + 'T00:00:00.000Z') 
+            : undefined,
+          },
+        });
+    }
     
-      return {
-        success: true,
-        message: 'student deleted'
-      }
+    
+    
+    async deleteStudent(id: number) {
+  
+    const student = await this.prisma.student.findUnique({
+      where: { id },
+    });
+  
+    if (!student) {
+      throw new NotFoundException('student topilmadi');
+    }
+    
+    await this.prisma.student.delete({
+      where: { id },
+    });
+  
+    return {
+      success: true,
+      message: 'student deleted'
+    }
     }
 
   }

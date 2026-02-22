@@ -11,6 +11,9 @@ import { AuthService } from './modules/auth/auth.service';
 import { join } from 'path'
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { LessonsModule } from './modules/lessons/lessons.module';
+import { AttendanceModule } from './modules/attendance/attendance.module';
+import { HomeworkService } from './modules/homework/homework.service';
+import { HomeworkModule } from './modules/homework/homework.module';
 
 @Module({
   imports: [
@@ -29,8 +32,10 @@ import { LessonsModule } from './modules/lessons/lessons.module';
     GroupsModule,
     RoomsModule,
     LessonsModule,
+    AttendanceModule,
+    HomeworkModule,
   ],
   // controllers: [AppController],
-  providers: [AuthService],
+  providers: [AuthService, HomeworkService],
 })
 export class AppModule {}
