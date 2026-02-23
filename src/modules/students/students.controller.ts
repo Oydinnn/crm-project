@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UnsupportedMediaTypeException, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UnsupportedMediaTypeException, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { StudentsService } from './students.service';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
@@ -9,11 +9,35 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { CreateStudentDto } from './dto/create.student.dto';
 import { UpdateStudentDto } from './dto/update.student.dto';
+import { PaginationDto } from './dto/pagination.dto';
 
 @ApiBearerAuth()
 @Controller('students')
 export class StudentsController {
   constructor(private readonly studentService: StudentsService){}
+
+
+
+// get my groups
+  @ApiOperation({
+    summary: `${Role.STUDENT}`,
+  })
+  @UseGuards(Authguard, RoleGuard)
+  @Roles(Role.STUDENT)
+  @Get('my/groups')
+  getMyGroups(
+    @Req() req: Request
+  ){
+    // console.log(req['user']);
+    
+    return this.studentService.getMyGroups(req['user'])
+  }
+
+
+
+
+
+
 
   //GET ONE STUDENTS
 
@@ -28,7 +52,7 @@ export class StudentsController {
   }
 
 
-  //GET ALL STUDENTS
+  //GET ALL STUDENTS pageination
 
   @ApiOperation({
     summary: `${Role.SUPERADMIN},${Role.ADMIN}`,
@@ -36,8 +60,8 @@ export class StudentsController {
   @UseGuards(Authguard, RoleGuard)
   @Roles(Role.SUPERADMIN, Role.ADMIN)
   @Get()
-  getAllStudent(){
-    return this.studentService.getAllStudents()
+  getAllStudent(@Query() pagination: PaginationDto){
+    return this.studentService.getAllStudents(pagination)
   }
 
 

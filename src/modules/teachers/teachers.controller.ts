@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   Req,
   UploadedFile,
   UseGuards,
@@ -27,6 +28,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { CreateTeacherDto } from './dto/create.teacher.dto';
 import { UpdateTeacherDto } from './dto/update.teacher.dto';
+import { PaginationDto } from '../students/dto/pagination.dto';
 
 @ApiBearerAuth()
 @Controller('teachers')
@@ -41,8 +43,8 @@ export class TeachersController {
   @UseGuards(Authguard, RoleGuard)
   @Roles(Role.SUPERADMIN, Role.ADMIN)
   @Get()
-  getAllTeachers() {
-    return this.teacherService.getAllTeachers();
+  getAllTeachers(@Query() paginition: PaginationDto) {
+    return this.teacherService.getAllTeachers(paginition);
   }
 
   //GET one TEACHERS

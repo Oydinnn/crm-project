@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   Req,
   UploadedFile,
   UseGuards,
@@ -27,21 +28,41 @@ import { Authguard } from 'src/common/guards/jwt-auth.guard';
 import { RoleGuard } from 'src/common/guards/role.guard';
 import { Roles } from 'src/common/decorators/role';
 import { UpdateHomworkDto } from './dto/update.homework.dto';
+import { PaginationDto } from '../students/dto/pagination.dto';
 
 @ApiBearerAuth()
 @Controller('homework')
 export class HomeworkController {
   constructor(private readonly homeworkService: HomeworkService) {}
 
-  // get
+  
+// my homeworks
+ @ApiOperation({
+    summary: `${Role.STUDENT}`,
+  })
+  @UseGuards(Authguard, RoleGuard)
+  @Roles(Role.STUDENT)
+  @Get("own/:lessonId")
+  getOwnHomework(
+    @Param("lessonId", ParseIntPipe) lessonId : number,
+    @Req() req: Request
+  ) {
+    return this.homeworkService.getOwnHomework(lessonId, req['user']);
+  }
+
+
+
+
+
+  // get all and pageination
   @ApiOperation({
     summary: `${Role.SUPERADMIN},${Role.ADMIN}`,
   })
   @UseGuards(Authguard, RoleGuard)
   @Roles(Role.SUPERADMIN, Role.ADMIN)
   @Get()
-  getAllHomworks() {
-    return this.homeworkService.getAllHomework();
+  getAllHomworks(@Query() pagination: PaginationDto) {
+    return this.homeworkService.getAllHomework(pagination);
   }
 
   // create

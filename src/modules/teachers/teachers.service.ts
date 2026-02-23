@@ -4,12 +4,14 @@ import * as bcrypt from 'bcrypt'
 import { Status } from '@prisma/client';
 import { CreateTeacherDto } from './dto/create.teacher.dto';
 import { UpdateTeacherDto } from './dto/update.teacher.dto';
+import { PaginationDto } from '../students/dto/pagination.dto';
 
 @Injectable()
 export class TeachersService {
   constructor(private prisma: PrismaService){}
 
-    async getAllTeachers(){
+    async getAllTeachers(pagination: PaginationDto){
+      const { page = 1, limit = 10} = pagination
       const teachers = await this.prisma.teacher.findMany({
         where: {
           status: Status.active
@@ -23,7 +25,9 @@ export class TeachersService {
           email: true,
           address: true,
           birth_date: true
-        }
+        },
+        skip: (page - 1) * limit,
+        take: limit
       })
       return{
         success: true,

@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt'
 import { Status } from '@prisma/client';
 import { EmailService } from 'src/common/email/email.service';
 import { UpdateStudentDto } from './dto/update.student.dto';
+import { PaginationDto } from './dto/pagination.dto';
 
 @Injectable()
 export class StudentsService {
@@ -13,6 +14,30 @@ export class StudentsService {
     private emailService : EmailService
   
   ){}
+
+    async getMyGroups(currentUser: {id: number}){
+      // console.log(currentUser);
+      
+      const myGroups = await this.prisma.studentGroup.findMany({
+        where:{
+          student_id: currentUser.id
+        },
+        select:{
+          group:{
+            select:{
+              id: true,
+              name: true
+            }
+          }
+        }
+      })
+      // console.log(myGroups);
+      
+      return {
+        success: true,
+        data: myGroups.map(el => el.group)
+      }
+    }
 
     async getStudentOne(id: number) {
     const student = await this.prisma.student.findUnique({
@@ -42,7 +67,10 @@ export class StudentsService {
 }
     
 
-    async getAllStudents(){
+    async getAllStudents(pagination :PaginationDto){
+      const {page = 1, limit = 10} = pagination 
+      // console.log(page);
+      
       const students = await this.prisma.student.findMany({
         where: {
           status: Status.active
@@ -56,7 +84,9 @@ export class StudentsService {
           email: true,
           address: true,
           birth_date: true
-        }
+        },
+        skip: (page - 1) * limit,
+        take: limit,
       })
       return{
         success: true,

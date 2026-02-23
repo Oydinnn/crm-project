@@ -7,13 +7,78 @@ import { PrismaService } from 'src/core/database/prisma.service';
 import { CreateHomworkDto } from './dto/create.homework.dto';
 import { Role } from '@prisma/client';
 import { UpdateHomworkDto } from './dto/update.homework.dto';
+import { title } from 'process';
+import { PaginationDto } from '../students/dto/pagination.dto';
 
 @Injectable()
 export class HomeworkService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllHomework() {
-    const homeworks = await this.prisma.homework.findMany();
+  async getOwnHomework(lessonId: number, currentUser: {id: number}){
+    const myLessons = await this.prisma.homework.findMany({
+      where: {
+        lesson_id: lessonId
+      },
+      select: {
+        id: true,
+        title: true,
+        file: true,
+        created_at: true,
+        updated_at: true,
+        teacher:{
+          select:{
+            id: true,
+            last_name: true,
+            first_name: true,
+            photo: true, 
+          }
+        },
+        user:{
+          select:{
+            id: true,
+            last_name: true,
+            first_name: true,
+            phone: true,
+            photo: true
+          }
+        }
+
+      }
+    })
+
+    const homeworkFormatted = myLessons.map(el=>{
+        if(!el.teacher){
+          return{
+            id: el.id,
+            title: el.title,
+            file: el.file,
+            created_at: el.created_at,
+            updated_at: el.updated_at,
+            user:el.user
+          }
+        }else{
+          return{
+            id: el.id,
+            title: el.title,
+            file: el.file,
+            created_at: el.created_at,
+            updated_at: el.updated_at,
+            teacher: el.teacher
+          }
+        }
+      })
+    return{
+      success: true,
+      data: homeworkFormatted
+    }
+  }
+
+  async getAllHomework(pageination: PaginationDto) {
+    const {page = 1, limit = 10} = pageination
+    const homeworks = await this.prisma.homework.findMany({
+      skip: (page - 1) * limit,
+      take: limit,
+    });
     return {
       success: true,
       data: homeworks,
@@ -29,10 +94,21 @@ export class HomeworkService {
       where: {
         id: payload.lesson_id,
       },
+      select:{group:{
+        select:{
+          teacher_id:true
+        }
+      }
+        
+      }
     });
 
     if (!existLesson) {
-      throw new ForbiddenException('Lesson not found with this id');
+      throw new NotFoundException('Lesson not found with this id');
+    }
+
+    if(currentUser.role == Role.TEACHER && existLesson.group.teacher_id != currentUser.id){
+      throw new ForbiddenException("it is not your lesson")
     }
     await this.prisma.homework.create({
       data: {

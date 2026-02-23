@@ -2,7 +2,6 @@ import { BadRequestException, ForbiddenException, Injectable, NotFoundException 
 import { PrismaService } from 'src/core/database/prisma.service';
 import { CreateAttendenceDto } from './dto/create.attendance.dto';
 import { Role, Status } from '@prisma/client';
-import { group } from 'console';
 import { UpdateAttendanceDto } from './dto/update.attendance.dto';
 
 @Injectable()

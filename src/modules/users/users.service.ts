@@ -4,6 +4,7 @@ import bcrypt from "bcrypt"
 import { PrismaService } from 'src/core/database/prisma.service';
 import { Role, Status } from '@prisma/client';
 import { UpdateAdminDto } from './dto/update.admin.dto';
+import { PaginationDto } from '../students/dto/pagination.dto';
 
 
 @Injectable()
@@ -36,7 +37,8 @@ export class UsersService {
 
 
 
-  async getAllUsers(){
+  async getAllUsers(pagination: PaginationDto){
+    const { page = 1, limit = 10} = pagination
     const users = await this.prisma.user.findMany({
       select: {
         id: true,
@@ -46,7 +48,9 @@ export class UsersService {
         phone: true,
         photo: true,
         role: true
-      }
+      },
+      skip: (page -1) * limit,
+      take: limit
     })
     return {
       success: true,
@@ -119,7 +123,7 @@ export class UsersService {
   if (!admin) {
     throw new NotFoundException('Admin topilmadi');
   }
-  
+
   await this.prisma.user.delete({
     where: { id },
   });

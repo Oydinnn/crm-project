@@ -8,6 +8,7 @@ import { CreateGroupDto } from './dto/create.group.dto';
 import { UpdateGroupDto } from './dto/update.group.dto';
 import { Status } from '@prisma/client';
 import { FilterDto} from './dto/search.group.dto';
+import { PaginationDto } from '../students/dto/pagination.dto';
 
 @Injectable()
 export class GroupsService {
@@ -50,7 +51,8 @@ export class GroupsService {
     };
   }
 
-  async getAllGroups(search:FilterDto) {
+  async getAllGroups(search:FilterDto, pageination: PaginationDto) {
+    const {page = 1, limit = 10} = pageination
     const {groupName, max_student} = search
 
     let searchWhere = {
@@ -94,6 +96,8 @@ export class GroupsService {
           },
         },
       },
+      skip: (page - 1) * limit,
+      take: limit
     });
 
     return {

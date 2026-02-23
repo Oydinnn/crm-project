@@ -2,14 +2,18 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { PrismaService } from 'src/core/database/prisma.service';
 import { CreateRoomDto } from './dto/create.room.dto';
 import { UpdateRoomDto } from './dto/update.room.dto';
+import { PaginationDto } from '../students/dto/pagination.dto';
 
 @Injectable()
 export class RoomsService {
   constructor(private prisma: PrismaService){}
 
-  async getAllRooms(){
+  async getAllRooms(pagination: PaginationDto){
+    const { page = 1, limit = 10} = pagination
     const rooms = await this.prisma.room.findMany({
-      where: { status: 'active' }
+      where: { status: 'active' },
+      skip: (page - 1) * limit,
+      take: limit
     })
 
     return {

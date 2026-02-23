@@ -1,19 +1,71 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/core/database/prisma.service';
 import { CreateLessonDto } from './dto/craete.lesson.dto';
 import { Role, Status } from '@prisma/client';
 import { UpdateLessonDto } from './dto/update.lesson.dto';
 import { Roles } from 'src/common/decorators/role';
+import { group } from 'console';
+import { PaginationDto } from '../students/dto/pagination.dto';
 
 @Injectable()
 export class LessonsService {
   constructor( private prisma: PrismaService){}
+  
+  
+  async getMyGroupLesson(groupId: number, currentUser: {id: number}){
+    const existGroup = await this.prisma.group.findFirst({
+      where: {
+        id: groupId,
+        status: Status.active
+      }
+    })
 
-    async getAllLessons(){
+    if(!existGroup){
+      throw new NotFoundException("Group not found with this id")
+    }
+
+     const existGroupStudent = await this.prisma.studentGroup.findFirst({
+      where: {
+        group_id: groupId,
+        student_id: currentUser.id,
+        status: Status.active
+      }
+    })
+
+    if(!existGroupStudent){
+      throw new BadRequestException("Student does not belong to this group")
+    }
+
+
+
+    const groupLessons = await this.prisma.lesson.findMany({
+        where:{
+          group_id: groupId,
+          status: Status.active
+        },
+        select:{
+          id: true,
+          topic: true,
+          created_at: true
+        }
+      })
+
+      return{
+        success: true,
+        data: groupLessons
+      }
+    }
+
+
+
+    async getAllLessons(pageination: PaginationDto){
+      const {page = 1, limit = 10} = pageination
       const lessons = await this.prisma.lesson.findMany({
         where:{
           status: Status.active,
-        }
+        },
+        skip: (page - 1) * limit,
+        take: limit
       })
       return{
         success: true,

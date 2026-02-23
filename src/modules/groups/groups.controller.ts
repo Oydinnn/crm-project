@@ -20,6 +20,7 @@ import { Roles } from 'src/common/decorators/role';
 import { CreateGroupDto } from './dto/create.group.dto';
 import { UpdateGroupDto } from './dto/update.group.dto';
 import { FilterDto } from './dto/search.group.dto';
+import { PaginationDto } from '../students/dto/pagination.dto';
 
 @ApiBearerAuth()
 @Controller('groups')
@@ -45,9 +46,10 @@ export class GroupsController {
   @Roles(Role.SUPERADMIN, Role.ADMIN)
   @Get("all")
   getAllGroups(
-    @Query() search : FilterDto
+    @Query() search : FilterDto,
+    @Query() pagination: PaginationDto
   ) {    
-    return this.groupService.getAllGroups(search);
+    return this.groupService.getAllGroups(search, pagination);
   }
 
 
@@ -63,7 +65,7 @@ export class GroupsController {
   }
 
 
-  
+
   // UPDATE
   @ApiOperation({
     summary: `${Role.SUPERADMIN}, ${Role.ADMIN}`,

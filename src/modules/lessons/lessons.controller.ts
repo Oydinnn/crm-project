@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { LessonsService } from './lessons.service';
 import { CreateLessonDto } from './dto/craete.lesson.dto';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
@@ -7,11 +7,27 @@ import { Authguard } from 'src/common/guards/jwt-auth.guard';
 import { RoleGuard } from 'src/common/guards/role.guard';
 import { Roles } from 'src/common/decorators/role';
 import { UpdateLessonDto } from './dto/update.lesson.dto';
+import { PaginationDto } from '../students/dto/pagination.dto';
 
 @ApiBearerAuth()
 @Controller('lessons')
 export class LessonsController {
   constructor(private readonly lessonService: LessonsService){}
+
+
+//  getMyGroupLesson
+  @ApiOperation({
+    summary: `${Role.STUDENT}`,
+  })
+  @UseGuards(Authguard, RoleGuard)
+  @Roles(Role.STUDENT)
+  @Get("my/group/:groupId")
+  getMyGroupLessons(
+    @Param("groupId", ParseIntPipe) groupId: number,
+    @Req() req: Request,
+  ) {
+    return this.lessonService.getMyGroupLesson(groupId, req['user']);
+  }
 
 
 
@@ -21,8 +37,8 @@ export class LessonsController {
   @UseGuards(Authguard, RoleGuard)
   @Roles(Role.ADMIN, Role.SUPERADMIN)
     @Get()
-    getAllLessons(){
-      return this.lessonService.getAllLessons()
+    getAllLessons(@Query() pagination: PaginationDto){
+      return this.lessonService.getAllLessons(pagination)
     }
 
 

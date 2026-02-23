@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create.room.dto';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
@@ -7,6 +7,7 @@ import { Authguard } from 'src/common/guards/jwt-auth.guard';
 import { RoleGuard } from 'src/common/guards/role.guard';
 import { Roles } from 'src/common/decorators/role';
 import { UpdateRoomDto } from './dto/update.room.dto';
+import { PaginationDto } from '../students/dto/pagination.dto';
 
 @ApiBearerAuth()
 @Controller('rooms')
@@ -19,8 +20,8 @@ export class RoomsController {
   @UseGuards(Authguard, RoleGuard)
   @Roles(Role.SUPERADMIN, Role.ADMIN)
   @Get()
-  getAllRooms(){
-    return this.roomService.getAllRooms()
+  getAllRooms(@Query() pagination: PaginationDto){
+    return this.roomService.getAllRooms(pagination)
   }
 
 

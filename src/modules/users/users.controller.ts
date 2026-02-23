@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { CreateAdminDto } from "./dto/create.admin.dto";
 import { RoleGuard } from "src/common/guards/role.guard";
@@ -7,6 +7,7 @@ import { Role } from "@prisma/client";
 import { ApiBearerAuth, ApiOperation } from "@nestjs/swagger";
 import { Authguard } from "src/common/guards/jwt-auth.guard";
 import { UpdateAdminDto } from "./dto/update.admin.dto";
+import { PaginationDto } from "../students/dto/pagination.dto";
 
 @ApiBearerAuth()
 @Controller('users')
@@ -37,8 +38,8 @@ export class UserController{
   @UseGuards(Authguard,RoleGuard)
   @Roles(Role.SUPERADMIN)
   @Get("users/all")
-  getAllUsers(){
-    return this.userService.getAllUsers()
+  getAllUsers(@Query() pagination: PaginationDto){
+    return this.userService.getAllUsers(pagination)
   }
 
 
