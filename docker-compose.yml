@@ -1,0 +1,40 @@
+version: "3.9"
+services:
+  db-docker:
+    image: postgres:15
+    container_name: 26_postgres
+    restart: always
+    environment:  # 'enviroment' emas
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: docker_crm
+    ports:
+      - "5444:5433"  # PostgreSQL default port 5432, sizda 5433 edi
+    volumes: 
+      - baza_data:/var/lib/postgresql/data
+
+  # redis:
+  #   image: redis:7
+  #   container_name: 26_redis
+  #   restart: always
+  #   ports:
+  #     - "6379:6379"
+
+  app:  # 'app' service ni redis bilan bir darajada bo'lishi kerak
+    build: .
+    container_name: 26_app
+    restart: always
+    env_file:
+      - .env
+    ports: 
+      - "4000:3000"
+    depends_on:
+      - db-docker
+      # - redis
+    environment:  # 'enviroment' emas
+      DATABASE_URL: postgres://postgres:admin@db-docker:5432/docker_crm  # port 5432
+      # REDIS_HOST: redis
+      REDIS_PORT: 6379  # ':' qo'shish kerak
+        
+volumes:
+  baza_data:

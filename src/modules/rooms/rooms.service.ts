@@ -13,7 +13,6 @@ export class RoomsService {
     const rooms = await this.prisma.room.findMany({
       where: { status: 'active' },
       skip: (page - 1) * limit,
-      take: limit
     })
 
     return {
